@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -24,6 +25,7 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
   List<String> imageUrls = [];
   bool fetchingImageUrls = false;
+  bool updatingWallpaper = false;
   int noOfScreens = 1;
   String selectedCategory = "Animals";
   List<String> categories = [
@@ -73,106 +75,129 @@ class _MainAppState extends State<MainApp> {
       title: 'Blissfull Backdrop',
       home: Scaffold(
         backgroundColor: const Color.fromARGB(240, 255, 255, 255),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: getCategoryWidgets(),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  Text(
-                    "Displaying for ${noOfScreens == 1 ? 'single screen' : noOfScreens == 2 ? 'dual monitors' : 'triple monitors'}",
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: fetchingImageUrls
-                    ? GridView.count(
-                        crossAxisCount: 2,
-                        childAspectRatio: 4.24,
-                        mainAxisSpacing: 8.0,
-                        crossAxisSpacing: 8.0,
-                        children: List.generate(
-                          12,
-                          (index) => Shimmer.fromColors(
-                            baseColor: Colors.grey,
-                            highlightColor: Colors.blueGrey,
-                            child: AspectRatio(
-                              aspectRatio: 4.24,
-                              child: Container(
-                                color: Colors.blueGrey,
-                              ),
-                            ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: getCategoryWidgets(),
                           ),
                         ),
+                      ),
+                      const SizedBox(width: 24),
+                      Text(
+                        "Displaying for ${noOfScreens == 1 ? 'single screen' : noOfScreens == 2 ? 'dual monitors' : 'triple monitors'}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                          fontStyle: FontStyle.italic,
+                        ),
                       )
-                    : imageUrls.isNotEmpty
-                        ? GridView.builder(
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 8.0,
-                              mainAxisSpacing: 8.0,
-                              childAspectRatio: 4.24,
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: fetchingImageUrls
+                        ? GridView.count(
+                            crossAxisCount: 2,
+                            childAspectRatio: 4.24,
+                            mainAxisSpacing: 8.0,
+                            crossAxisSpacing: 8.0,
+                            children: List.generate(
+                              12,
+                              (index) => Shimmer.fromColors(
+                                baseColor: Colors.grey,
+                                highlightColor: Colors.blueGrey,
+                                child: AspectRatio(
+                                  aspectRatio: 4.24,
+                                  child: Container(
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
+                              ),
                             ),
-                            itemCount: imageUrls.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: CachedNetworkImage(
-                                    imageUrl: imageUrls[index],
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) =>
-                                        Shimmer.fromColors(
-                                      baseColor: Colors.grey,
-                                      highlightColor: Colors.blueGrey,
-                                      child: AspectRatio(
-                                        aspectRatio: 4.24,
-                                        child: Container(
-                                          color: Colors.blueGrey,
+                          )
+                        : imageUrls.isNotEmpty
+                            ? GridView.builder(
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 8.0,
+                                  mainAxisSpacing: 8.0,
+                                  childAspectRatio: 4.24,
+                                ),
+                                itemCount: imageUrls.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return MouseRegion(
+                                    cursor: SystemMouseCursors.click,
+                                    child: GestureDetector(
+                                      child: CachedNetworkImage(
+                                        imageUrl: imageUrls[index],
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Shimmer.fromColors(
+                                          baseColor: Colors.grey,
+                                          highlightColor: Colors.blueGrey,
+                                          child: AspectRatio(
+                                            aspectRatio: 4.24,
+                                            child: Container(
+                                              color: Colors.blueGrey,
+                                            ),
+                                          ),
                                         ),
                                       ),
+                                      onTap: () async {
+                                        setState(() {
+                                          updatingWallpaper = true;
+                                        });
+                                        String imageUrl = imageUrls[index];
+                                        String imagePath =
+                                            await downloadImage(imageUrl);
+                                        await updateWallpaper(imagePath);
+                                      },
                                     ),
-                                  ),
-                                  onTap: () async {
-                                    String imageUrl = imageUrls[index];
-                                    String imagePath =
-                                        await downloadImage(imageUrl);
-                                    updateWallpaper(imagePath);
-                                  },
-                                ),
-                              );
-                            },
-                          )
-                        : const Center(
-                            child: Text('No wallpapers to show :('),
-                          ),
+                                  );
+                                },
+                              )
+                            : const Center(
+                                child: Text('No wallpapers to show :('),
+                              ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            if (updatingWallpaper)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  color: Colors.white.withOpacity(0.5),
+                  child: Center(
+                    child: LoadingAnimationWidget.staggeredDotsWave(
+                      color: const Color.fromARGB(255, 29, 156, 230),
+                      size: 224,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 
-  void updateWallpaper(String imagePath) async {
+  Future<void> updateWallpaper(String imagePath) async {
     final scriptDir = path.dirname(Platform.script.toFilePath());
     String relativePathToExecutable =
         path.join(scriptDir, 'bin', 'ConsoleApplication1.exe');
@@ -191,6 +216,9 @@ class _MainAppState extends State<MainApp> {
       log('STDERR:');
       log(result.stderr);
     }
+    setState(() {
+      updatingWallpaper = false;
+    });
   }
 
   Future<String> downloadImage(String imageUrl) async {
