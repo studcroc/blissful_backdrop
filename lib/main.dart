@@ -70,7 +70,9 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Blissfull Backdrop',
       home: Scaffold(
+        backgroundColor: const Color.fromARGB(240, 255, 255, 255),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -230,6 +232,8 @@ class _MainAppState extends State<MainApp> {
     } catch (e) {
       log('Error parsing HTML: $e');
     }
+
+    imageUrls.shuffle();
 
     return imageUrls;
   }
