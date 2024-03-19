@@ -24,10 +24,12 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   List<String> imageUrls = [];
-  bool fetchingImageUrls = false;
+  bool fetchingImageUrls = true;
   bool updatingWallpaper = false;
+  bool loadingNextPageOfWallpaper = false;
   int noOfScreens = 1;
   String selectedCategory = "Animals";
+  int selectedCategoryPage = 1;
   List<String> categories = [
     "Animals",
     "Abstract",
@@ -43,30 +45,56 @@ class _MainAppState extends State<MainApp> {
     "Popular-Culture",
     "Science-Fiction"
   ];
+  final ScrollController _scrollController = ScrollController();
+  String baseEndpoint = "https://www.dualmonitorbackgrounds.com";
+  double currentScrollOffset = 0.0;
 
   @override
   void initState() {
     super.initState();
 
+    initialize();
+
     loadWallpapers();
+
+    _scrollController.addListener(() {
+      if (_scrollController.offset >=
+              _scrollController.position.maxScrollExtent &&
+          !_scrollController.position.outOfRange) {
+        selectedCategoryPage += 1;
+        setState(() {
+          loadingNextPageOfWallpaper = true;
+        });
+        loadWallpapers();
+      }
+    });
   }
 
-  loadWallpapers() async {
+  initialize() async {
     var screens = await window_size.getScreenList();
     setState(() {
-      fetchingImageUrls = true;
       noOfScreens = screens.length;
+      if (noOfScreens == 3) {
+        baseEndpoint = "https://www.triplemonitorbackgrounds.com";
+      }
     });
-    String baseUrl = "https://www.dualmonitorbackgrounds.com";
-    if (noOfScreens == 3) {
-      baseUrl = "https://www.triplemonitorbackgrounds.com";
-    }
-    List<String> response =
-        await extractImageUrls(baseUrl, selectedCategory.toLowerCase());
+  }
+
+  Future<void> loadWallpapers() async {
+    List<String> urls =
+        await extractImageUrls(baseEndpoint, selectedCategory.toLowerCase());
+
     setState(() {
-      imageUrls = response;
+      imageUrls.addAll(urls);
       fetchingImageUrls = false;
+      loadingNextPageOfWallpaper = false;
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -128,6 +156,7 @@ class _MainAppState extends State<MainApp> {
                           )
                         : imageUrls.isNotEmpty
                             ? GridView.builder(
+                                controller: _scrollController,
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
@@ -191,6 +220,16 @@ class _MainAppState extends State<MainApp> {
                   ),
                 ),
               ),
+            if (loadingNextPageOfWallpaper)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  color: Colors.white.withOpacity(0.5),
+                  child: const LinearProgressIndicator(minHeight: 8),
+                ),
+              ),
           ],
         ),
       ),
@@ -239,7 +278,8 @@ class _MainAppState extends State<MainApp> {
 
     try {
       // Fetch HTML content
-      final response = await http.get(Uri.parse("$baseUrl/$category"));
+      final response = await http
+          .get(Uri.parse("$baseUrl/$category/page/$selectedCategoryPage"));
       if (response.statusCode == 200) {
         // Parse HTML
         final document = html.parse(response.body);
@@ -261,7 +301,7 @@ class _MainAppState extends State<MainApp> {
       log('Error parsing HTML: $e');
     }
 
-    imageUrls.shuffle();
+    // imageUrls.shuffle();
 
     return imageUrls;
   }
@@ -281,9 +321,12 @@ class _MainAppState extends State<MainApp> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () {
+              _scrollController.jumpTo(0);
               setState(() {
                 selectedCategory = category;
+                selectedCategoryPage = 1;
                 fetchingImageUrls = true;
+                imageUrls = [];
               });
               loadWallpapers();
             },
