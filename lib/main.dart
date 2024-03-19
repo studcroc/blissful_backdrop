@@ -169,20 +169,36 @@ class _MainAppState extends State<MainApp> {
                                   return MouseRegion(
                                     cursor: SystemMouseCursors.click,
                                     child: GestureDetector(
-                                      child: CachedNetworkImage(
-                                        imageUrl: imageUrls[index],
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            Shimmer.fromColors(
-                                          baseColor: Colors.grey,
-                                          highlightColor: Colors.blueGrey,
-                                          child: AspectRatio(
-                                            aspectRatio: 4.24,
-                                            child: Container(
-                                              color: Colors.blueGrey,
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          CachedNetworkImage(
+                                            imageUrl: imageUrls[index],
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, url) =>
+                                                Shimmer.fromColors(
+                                              baseColor: Colors.grey,
+                                              highlightColor: Colors.blueGrey,
+                                              child: AspectRatio(
+                                                aspectRatio: 4.24,
+                                                child: Container(
+                                                  color: Colors.blueGrey,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          Positioned(
+                                            bottom: 0,
+                                            child: Text(
+                                              "${imageUrls[index].split('/').last.split('.').first[0].toUpperCase()}${imageUrls[index].split('/').last.split('.').first.substring(1)}",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                backgroundColor: Colors.black
+                                                    .withOpacity(0.5),
+                                              ),
+                                            ),
+                                          )
+                                        ],
                                       ),
                                       onTap: () async {
                                         setState(() {
