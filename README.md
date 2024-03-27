@@ -28,7 +28,7 @@ Blissful Backdrop is a Flutter desktop application that allows you to set wallpa
 
 ## Getting Started
 
-1. Download the latest release from the Releases: [https://github.com/](https://github.com/)[YOUR_USERNAME]/Blissful-backdrop/releases section.
+1. Download the latest release from the Releases or click [here](https://github.com/)
 2. Extract the contents of the ZIP file.
 3. Double-click on the `Blissful_backdrop.exe` file to run the application.
 

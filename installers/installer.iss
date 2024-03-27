@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Blissful Backdrop"
-#define MyAppVersion "1.0"
+#define MyAppVersion "0.1.0"
 #define MyAppExeName "blissful_backdrop.exe"
 
 [Setup]
@@ -19,7 +19,7 @@ DisableProgramGroupPage=yes
 ;PrivilegesRequired=lowest
 OutputDir=D:\workdir\lab\Projects\blissful_backdrop\installers
 OutputBaseFilename=installer
-SetupIconFile=C:\Users\z004kxee\Downloads\18468333-removebg-preview.ico
+SetupIconFile=D:\workdir\lab\Projects\blissful_backdrop\windows\runner\resources\app_icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -34,6 +34,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "D:\workdir\lab\Projects\blissful_backdrop\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\workdir\lab\Projects\blissful_backdrop\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\workdir\lab\Projects\blissful_backdrop\build\windows\x64\runner\Release\window_size_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\workdir\lab\Projects\blissful_backdrop\build\windows\x64\runner\Release\url_launcher_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\workdir\lab\Projects\blissful_backdrop\build\windows\x64\runner\Release\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
