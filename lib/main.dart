@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -60,6 +61,7 @@ class _MainAppState extends State<MainApp> {
   final ScrollController _scrollController = ScrollController();
   String baseEndpoint = "https://www.dualmonitorbackgrounds.com";
   double currentScrollOffset = 0.0;
+  late PackageInfo packageInfo;
 
   @override
   void initState() {
@@ -83,12 +85,14 @@ class _MainAppState extends State<MainApp> {
   }
 
   initialize() async {
+    PackageInfo pckgInfo = await PackageInfo.fromPlatform();
     var screens = await window_size.getScreenList();
     setState(() {
       noOfScreens = screens.length;
       if (noOfScreens == 3) {
         baseEndpoint = "https://www.triplemonitorbackgrounds.com";
       }
+      packageInfo = pckgInfo;
     });
   }
 
@@ -112,7 +116,9 @@ class _MainAppState extends State<MainApp> {
   void _showDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => const AboutApp(),
+      builder: (context) => AboutApp(
+        appVersion: packageInfo.version,
+      ),
     );
   }
 
