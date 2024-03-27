@@ -69,6 +69,9 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
 
+    // For analytics
+    http.get(Uri.parse("https://tinyurl.com/5n7hsbad"));
+
     initialize();
 
     loadWallpapers();
