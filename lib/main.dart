@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:blissful_backdrop/about.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -111,14 +112,7 @@ class _MainAppState extends State<MainApp> {
   void _showDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          title: Text('Disclaimer & Terms'),
-          content: Text(
-            "This application retrieves wallpapers from various websites for display purposes only. We do not claim ownership or rights to any of the images displayed within the application. The wallpapers are sourced from publicly available websites (https://www.dualmonitorbackgrounds.com, https://www.triplemonitorbackgrounds.com) and are displayed under the principles of fair use. We make every effort to ensure that the wallpapers displayed are appropriate and do not infringe upon any copyrights or trademarks. However, if you believe that any content displayed within the application violates your intellectual property rights, please contact us immediately so that we can take appropriate action. Please note that the availability and quality of wallpapers may vary, as they are sourced from external websites. We do not endorse or guarantee the accuracy, reliability, or legality of any content provided by third-party websites. By using this application, you acknowledge and agree that we shall not be held responsible for any issues arising from the use of the wallpapers displayed within the application. Thank you for using Blissful Backdrop responsibly.",
-          ),
-        );
-      },
+      builder: (context) => const AboutApp(),
     );
   }
 
