@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Blissfull Backdrop',
+      title: 'Blissful Backdrop',
       home: MainApp(),
     );
   }
@@ -42,9 +42,10 @@ class _MainAppState extends State<MainApp> {
   bool updatingWallpaper = false;
   bool loadingNextPageOfWallpaper = false;
   int noOfScreens = 1;
-  String selectedCategory = "Animals";
+  String selectedCategory = "Random";
   int selectedCategoryPage = 1;
   List<String> categories = [
+    "Random",
     "Animals",
     "Abstract",
     "Astronomy",
@@ -76,11 +77,13 @@ class _MainAppState extends State<MainApp> {
       if (_scrollController.offset >=
               _scrollController.position.maxScrollExtent &&
           !_scrollController.position.outOfRange) {
-        selectedCategoryPage += 1;
-        setState(() {
-          loadingNextPageOfWallpaper = true;
-        });
-        loadWallpapers();
+        if (selectedCategory.toLowerCase() != "random") {
+          selectedCategoryPage += 1;
+          setState(() {
+            loadingNextPageOfWallpaper = true;
+          });
+          loadWallpapers();
+        }
       }
     });
   }
@@ -326,21 +329,23 @@ class _MainAppState extends State<MainApp> {
     List<String> imageUrls = [];
 
     try {
+      String url = "$baseUrl/$category/page/$selectedCategoryPage";
+      if (category.toLowerCase() == "random") {
+        url = "$baseUrl/$category";
+      }
       // Fetch HTML content
-      final response = await http
-          .get(Uri.parse("$baseUrl/$category/page/$selectedCategoryPage"));
+      final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         // Parse HTML
         final document = html.parse(response.body);
 
         // Extract image URLs
-        final images = document.getElementsByTagName('img');
+        final images = document.getElementsByTagName('li a img');
         for (var img in images) {
-          String? src = img.attributes['src'];
-          if (src != null && src.isNotEmpty && src.contains("_thumb")) {
-            src = src.replaceFirst("cache", "albums");
-            src = src.replaceFirst(RegExp(r"_\d+_cw\d+_ch\d+_thumb"), "");
-            imageUrls.add("$baseUrl$src");
+          String? imagePath =
+              img.parent!.attributes['href']!.replaceAll(".php", "");
+          if (imagePath.isNotEmpty) {
+            imageUrls.add("$baseEndpoint/albums$imagePath");
           }
         }
       } else {
