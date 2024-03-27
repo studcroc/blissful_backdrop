@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      title: 'Blissfull Backdrop',
       home: MainApp(),
     );
   }
@@ -124,165 +125,162 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Blissfull Backdrop',
-      home: Scaffold(
-        floatingActionButton: SizedBox(
-          height: 48,
-          width: 48,
-          child: FloatingActionButton(
-            onPressed: () {
-              _showDialog(context);
-            },
-            child: const Icon(Icons.info),
-          ),
+    return Scaffold(
+      floatingActionButton: SizedBox(
+        height: 48,
+        width: 48,
+        child: FloatingActionButton(
+          onPressed: () {
+            _showDialog(context);
+          },
+          child: const Icon(Icons.info),
         ),
-        backgroundColor: Colors.white,
-        body: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: getCategoryWidgets(),
-                          ),
+      ),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: getCategoryWidgets(),
                         ),
                       ),
-                      const SizedBox(width: 24),
-                      Text(
-                        "Displaying for ${noOfScreens == 1 ? 'single screen' : noOfScreens == 2 ? 'dual monitors' : 'triple monitors'}",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.normal,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(
-                    child: fetchingImageUrls
-                        ? GridView.count(
-                            crossAxisCount: 2,
-                            childAspectRatio: 4.24,
-                            mainAxisSpacing: 8.0,
-                            crossAxisSpacing: 8.0,
-                            children: List.generate(
-                              12,
-                              (index) => Shimmer.fromColors(
-                                baseColor: Colors.grey,
-                                highlightColor: Colors.blueGrey,
-                                child: AspectRatio(
-                                  aspectRatio: 4.24,
-                                  child: Container(
-                                    color: Colors.blueGrey,
-                                  ),
+                    ),
+                    const SizedBox(width: 24),
+                    Text(
+                      "Displaying for ${noOfScreens == 1 ? 'single screen' : noOfScreens == 2 ? 'dual monitors' : 'triple monitors'}",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: fetchingImageUrls
+                      ? GridView.count(
+                          crossAxisCount: 2,
+                          childAspectRatio: 4.24,
+                          mainAxisSpacing: 8.0,
+                          crossAxisSpacing: 8.0,
+                          children: List.generate(
+                            12,
+                            (index) => Shimmer.fromColors(
+                              baseColor: Colors.grey,
+                              highlightColor: Colors.blueGrey,
+                              child: AspectRatio(
+                                aspectRatio: 4.24,
+                                child: Container(
+                                  color: Colors.blueGrey,
                                 ),
                               ),
                             ),
-                          )
-                        : imageUrls.isNotEmpty
-                            ? GridView.builder(
-                                controller: _scrollController,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 8.0,
-                                  mainAxisSpacing: 8.0,
-                                  childAspectRatio: 4.24,
-                                ),
-                                itemCount: imageUrls.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: GestureDetector(
-                                      child: Stack(
-                                        fit: StackFit.expand,
-                                        children: [
-                                          CachedNetworkImage(
-                                            imageUrl: imageUrls[index],
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                Shimmer.fromColors(
-                                              baseColor: Colors.grey,
-                                              highlightColor: Colors.blueGrey,
-                                              child: AspectRatio(
-                                                aspectRatio: 4.24,
-                                                child: Container(
-                                                  color: Colors.blueGrey,
-                                                ),
+                          ),
+                        )
+                      : imageUrls.isNotEmpty
+                          ? GridView.builder(
+                              controller: _scrollController,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 8.0,
+                                mainAxisSpacing: 8.0,
+                                childAspectRatio: 4.24,
+                              ),
+                              itemCount: imageUrls.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        CachedNetworkImage(
+                                          imageUrl: imageUrls[index],
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              Shimmer.fromColors(
+                                            baseColor: Colors.grey,
+                                            highlightColor: Colors.blueGrey,
+                                            child: AspectRatio(
+                                              aspectRatio: 4.24,
+                                              child: Container(
+                                                color: Colors.blueGrey,
                                               ),
                                             ),
                                           ),
-                                          Positioned(
-                                            bottom: 0,
-                                            child: Text(
-                                              "${imageUrls[index].split('/').last.split('.').first[0].toUpperCase()}${imageUrls[index].split('/').last.split('.').first.substring(1)}",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                backgroundColor: Colors.black
-                                                    .withOpacity(0.5),
-                                              ),
+                                        ),
+                                        Positioned(
+                                          bottom: 0,
+                                          child: Text(
+                                            "${imageUrls[index].split('/').last.split('.').first[0].toUpperCase()}${imageUrls[index].split('/').last.split('.').first.substring(1)}",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              backgroundColor:
+                                                  Colors.black.withOpacity(0.5),
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                      onTap: () async {
-                                        setState(() {
-                                          updatingWallpaper = true;
-                                        });
-                                        String imageUrl = imageUrls[index];
-                                        String imagePath =
-                                            await downloadImage(imageUrl);
-                                        await updateWallpaper(imagePath);
-                                      },
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  );
-                                },
-                              )
-                            : const Center(
-                                child: Text('No wallpapers to show :('),
-                              ),
+                                    onTap: () async {
+                                      setState(() {
+                                        updatingWallpaper = true;
+                                      });
+                                      String imageUrl = imageUrls[index];
+                                      String imagePath =
+                                          await downloadImage(imageUrl);
+                                      await updateWallpaper(imagePath);
+                                    },
+                                  ),
+                                );
+                              },
+                            )
+                          : const Center(
+                              child: Text('No wallpapers to show :('),
+                            ),
+                ),
+              ],
+            ),
+          ),
+          if (updatingWallpaper)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.white.withOpacity(0.5),
+                child: Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: const Color.fromARGB(255, 29, 156, 230),
+                    size: 224,
                   ),
-                ],
+                ),
               ),
             ),
-            if (updatingWallpaper)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  color: Colors.white.withOpacity(0.5),
-                  child: Center(
-                    child: LoadingAnimationWidget.staggeredDotsWave(
-                      color: const Color.fromARGB(255, 29, 156, 230),
-                      size: 224,
-                    ),
-                  ),
-                ),
+          if (loadingNextPageOfWallpaper)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.white.withOpacity(0.5),
+                child: const LinearProgressIndicator(minHeight: 8),
               ),
-            if (loadingNextPageOfWallpaper)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  color: Colors.white.withOpacity(0.5),
-                  child: const LinearProgressIndicator(minHeight: 8),
-                ),
-              ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
