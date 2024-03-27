@@ -12,7 +12,18 @@ import 'package:shimmer/shimmer.dart';
 import 'package:window_size/window_size.dart' as window_size;
 
 void main() {
-  runApp(const MainApp());
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: MainApp(),
+    );
+  }
 }
 
 class MainApp extends StatefulWidget {
@@ -97,16 +108,40 @@ class _MainAppState extends State<MainApp> {
     super.dispose();
   }
 
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          title: Text('Disclaimer & Terms'),
+          content: Text(
+            "This application retrieves wallpapers from various websites for display purposes only. We do not claim ownership or rights to any of the images displayed within the application. The wallpapers are sourced from publicly available websites (https://www.dualmonitorbackgrounds.com, https://www.triplemonitorbackgrounds.com) and are displayed under the principles of fair use. We make every effort to ensure that the wallpapers displayed are appropriate and do not infringe upon any copyrights or trademarks. However, if you believe that any content displayed within the application violates your intellectual property rights, please contact us immediately so that we can take appropriate action. Please note that the availability and quality of wallpapers may vary, as they are sourced from external websites. We do not endorse or guarantee the accuracy, reliability, or legality of any content provided by third-party websites. By using this application, you acknowledge and agree that we shall not be held responsible for any issues arising from the use of the wallpapers displayed within the application. Thank you for using Blissful Backdrop responsibly.",
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Blissfull Backdrop',
       home: Scaffold(
-        backgroundColor: const Color.fromARGB(240, 255, 255, 255),
+        floatingActionButton: SizedBox(
+          height: 48,
+          width: 48,
+          child: FloatingActionButton(
+            onPressed: () {
+              _showDialog(context);
+            },
+            child: const Icon(Icons.info),
+          ),
+        ),
+        backgroundColor: Colors.white,
         body: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: [
