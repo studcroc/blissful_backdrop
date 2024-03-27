@@ -1,6 +1,6 @@
 # Blisstul Backdrop
 
-![app_icon](<windows\runner\resources\app_icon.ico>)
+![app_icon](<./windows/runner/resources/app_icon.ico>)
 
 Blisstul Backdrop is a Flutter desktop application that allows you to set wallpapers on your Windows machine. It provides a variety of wallpaper categories to choose from, including:
 
@@ -32,10 +32,10 @@ Blisstul Backdrop is a Flutter desktop application that allows you to set wallpa
 2. Extract the contents of the ZIP file.
 3. Double-click on the `blisstul_backdrop.exe` file to run the application.
 
-**License**
+## License
 
 Blisstul Backdrop is licensed under the MIT License. See the LICENSE: [https://github.com/](https://github.com/)[YOUR_USERNAME]/blisstul-backdrop/blob/master/LICENSE file for more details.
 
-**Contact**
+## Contact
 
 If you have any questions or feedback, please feel free to create an issue on the GitHub repository.
