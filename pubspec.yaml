@@ -17,13 +17,14 @@ dependencies:
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
   loading_animation_widget: ^1.2.1
-  package_info_plus: ^6.0.0
   url_launcher: ^6.2.5
   window_size:
     git:
       url: https://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
       ref: a738913c8ce2c9f47515382d40827e794a334274
+  aptabase_flutter: ^0.1.1
+  package_info_plus: ^4.2.0
 
 dev_dependencies:
   flutter_test:

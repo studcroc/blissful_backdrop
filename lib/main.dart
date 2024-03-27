@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:blissful_backdrop/about.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +14,12 @@ import 'package:html/parser.dart' as html;
 import 'package:shimmer/shimmer.dart';
 import 'package:window_size/window_size.dart' as window_size;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initilize the analytics
+  await Aptabase.init("A-EU-0224880831");
+
   runApp(const MyApp());
 }
 
@@ -67,10 +73,9 @@ class _MainAppState extends State<MainApp> {
 
   @override
   void initState() {
-    super.initState();
+    Aptabase.instance.trackEvent('app_launch');
 
-    // For analytics
-    http.get(Uri.parse("https://tinyurl.com/5n7hsbad"));
+    super.initState();
 
     initialize();
 
