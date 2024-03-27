@@ -1,5 +1,7 @@
 # Blissful Backdrop
 
+<a href="https://www.producthunt.com/products/blissful-backdrop/reviews?utm_source=badge-product_review&utm_medium=badge&utm_souce=badge-blissful&#0045;backdrop" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=577054&theme=light" alt="Blissful&#0032;Backdrop - Windows&#0032;wallpaper&#0032;application&#0046; | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 ![app_icon](<./windows/runner/resources/app_icon.ico>)
 
 Blissful Backdrop is a Flutter desktop application that allows you to set wallpapers on your Windows machine. It provides a variety of wallpaper categories to choose from, including:
