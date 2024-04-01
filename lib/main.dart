@@ -10,6 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:html/parser.dart' as html;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:window_size/window_size.dart' as window_size;
 
@@ -50,6 +51,7 @@ class _MainAppState extends State<MainApp> {
   String selectedCategory = "Random";
   int selectedCategoryPage = 1;
   List<String> categories = [
+    "Favorites",
     "Random",
     "Animals",
     "Abstract",
@@ -69,6 +71,8 @@ class _MainAppState extends State<MainApp> {
   String baseEndpoint = "https://www.dualmonitorbackgrounds.com";
   double currentScrollOffset = 0.0;
   late PackageInfo packageInfo;
+  late SharedPreferences _preferences;
+  List<String> favoriteWallpapersList = [];
 
   static const platform = MethodChannel('blissful_backdrop.native/wallpaper');
 
@@ -111,12 +115,18 @@ class _MainAppState extends State<MainApp> {
   initialize() async {
     PackageInfo pckgInfo = await PackageInfo.fromPlatform();
     var screens = await window_size.getScreenList();
+    var prefs = await SharedPreferences.getInstance();
+    var favorites = prefs.getStringList("favorites");
+
     setState(() {
       noOfScreens = screens.length;
       if (noOfScreens == 3) {
         baseEndpoint = "https://www.triplemonitorbackgrounds.com";
       }
       packageInfo = pckgInfo;
+      _preferences = prefs;
+
+      favoriteWallpapersList = favorites ?? [];
     });
   }
 
@@ -254,6 +264,35 @@ class _MainAppState extends State<MainApp> {
                                                   Colors.black.withOpacity(0.5),
                                             ),
                                           ),
+                                        ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              await favoriteOrUnfavoriteWallpaper(
+                                                  imageUrls[index]);
+                                            },
+                                            icon: Icon(
+                                              favoriteWallpapersList.contains(
+                                                      imageUrls[index])
+                                                  ? Icons.favorite
+                                                  : Icons
+                                                      .favorite_outline_outlined,
+                                              color: Colors.white,
+                                              shadows: favoriteWallpapersList
+                                                      .contains(
+                                                          imageUrls[index])
+                                                  ? [
+                                                      const Shadow(
+                                                        color: Colors.black,
+                                                        offset: Offset(1, 1),
+                                                        blurRadius: 8,
+                                                      ),
+                                                    ]
+                                                  : [],
+                                            ),
+                                          ),
                                         )
                                       ],
                                     ),
@@ -308,6 +347,18 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
+  Future<void> favoriteOrUnfavoriteWallpaper(String imageUrl) async {
+    if (favoriteWallpapersList.contains(imageUrl)) {
+      favoriteWallpapersList.remove(imageUrl);
+    } else {
+      favoriteWallpapersList.add(imageUrl);
+    }
+    await _preferences.setStringList("favorites", favoriteWallpapersList);
+    setState(() {
+      favoriteWallpapersList = favoriteWallpapersList;
+    });
+  }
+
   Future<void> updateWallpaper(String imagePath) async {
     setState(() {
       updatingWallpaper = true;
@@ -340,6 +391,8 @@ class _MainAppState extends State<MainApp> {
       String url = "$baseUrl/$category/page/$selectedCategoryPage";
       if (category.toLowerCase() == "random") {
         url = "$baseUrl/$category";
+      } else if (category.toLowerCase() == "favorites") {
+        return favoriteWallpapersList;
       }
       // Fetch HTML content
       final response = await http.get(Uri.parse(url));
@@ -383,7 +436,9 @@ class _MainAppState extends State<MainApp> {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () {
-              _scrollController.jumpTo(0);
+              if (_scrollController.hasClients) {
+                _scrollController.jumpTo(0);
+              }
               setState(() {
                 selectedCategory = category;
                 selectedCategoryPage = 1;
