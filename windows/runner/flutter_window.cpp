@@ -1,8 +1,77 @@
 #include "flutter_window.h"
+#include <flutter/event_channel.h>
+#include <flutter/event_sink.h>
+#include <flutter/event_stream_handler_functions.h>
+#include <flutter/method_channel.h>
+#include <flutter/standard_method_codec.h>
+#include <windows.h>
+#include <ShObjIdl_core.h>
+
+#include <memory>
 
 #include <optional>
 
 #include "flutter/generated_plugin_registrant.h"
+#include <variant>
+
+static bool SetDesktopWallpaper(std::string wallpaper_file_path, std::int64_t fit_mode) {
+    
+    DESKTOP_WALLPAPER_POSITION fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_CENTER;
+
+    switch (fit_mode)
+    {
+        case 0:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_CENTER;
+            break;
+        case 1:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_TILE;
+            break;
+        case 2:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_STRETCH;
+            break;
+        case 3:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_FIT;
+            break;
+        case 4:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_FILL;
+            break;
+        case 5:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_SPAN;
+            break;
+        default:
+            fit_type = DESKTOP_WALLPAPER_POSITION::DWPOS_CENTER;
+            break;
+    }
+
+    // Convert char* to wchar_t*
+    int len = MultiByteToWideChar(CP_UTF8, 0, wallpaper_file_path.c_str(), -1, nullptr, 0);
+    wchar_t* wallpaperPath = new wchar_t[len];
+    MultiByteToWideChar(CP_UTF8, 0, wallpaper_file_path.c_str(), -1, wallpaperPath, len);
+
+    // Setting desktop wallpaper
+    HRESULT hr = CoInitialize(NULL);
+
+    IDesktopWallpaper* pDesktopWallpaper = NULL;
+    hr = CoCreateInstance(__uuidof(DesktopWallpaper), NULL, CLSCTX_ALL, IID_PPV_ARGS(&pDesktopWallpaper));
+
+    bool success = false;
+
+    if (SUCCEEDED(hr))
+    {
+        // pDesktopWallpaper->GetPosition(&fit_type);
+        pDesktopWallpaper->SetPosition(fit_type);
+        hr = pDesktopWallpaper->SetWallpaper(NULL, wallpaperPath);
+        pDesktopWallpaper->Release();
+
+        success = true;
+    }
+
+    CoUninitialize();
+
+    delete[] wallpaperPath; // Clean up allocated memory
+
+    return success;
+}
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
@@ -25,6 +94,30 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
+
+  flutter::MethodChannel<> channel(
+      flutter_controller_->engine()->messenger(), "blissful_backdrop.native/wallpaper",
+      &flutter::StandardMethodCodec::GetInstance());
+  channel.SetMethodCallHandler(
+      [](const flutter::MethodCall<>& call,
+         std::unique_ptr<flutter::MethodResult<>> result) {
+        if (call.method_name() == "setDesktopWallpaper") {
+            const auto* arguments = std::get_if<flutter::EncodableMap>(call.arguments());
+            auto file_path_it = arguments->find(flutter::EncodableValue("filePath"));
+            auto fit_mode_it = arguments->find(flutter::EncodableValue("fitMode"));
+            std::string file_path = std::get<std::string>(file_path_it->second);
+            std::int64_t fit_mode = fit_mode_it->second.LongValue();
+            bool success = SetDesktopWallpaper(file_path, fit_mode);
+        if (success) {
+          result->Success("Wallpaper set successfully.");
+        } else {
+          result->Error("UNAVAILABLE", "Something went wrong.");
+        }
+      } else {
+        result->NotImplemented();
+      }
+      });
+
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {

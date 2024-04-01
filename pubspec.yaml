@@ -33,5 +33,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - bin/ConsoleApplication1.exe

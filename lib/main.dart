@@ -3,11 +3,10 @@ import 'dart:io';
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:blissful_backdrop/about.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path/path.dart' as path;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:html/parser.dart' as html;
@@ -70,6 +69,19 @@ class _MainAppState extends State<MainApp> {
   String baseEndpoint = "https://www.dualmonitorbackgrounds.com";
   double currentScrollOffset = 0.0;
   late PackageInfo packageInfo;
+
+  static const platform = MethodChannel('blissful_backdrop.native/wallpaper');
+
+  Future<void> callNativeSetDesktopWallpaperMethod(
+      String wallpaperFilePath, int fitMode) async {
+    try {
+      final result = await platform.invokeMethod<bool>('setDesktopWallpaper',
+          {"filePath": wallpaperFilePath, "fitMode": fitMode});
+      log(result.toString());
+    } on PlatformException catch (e) {
+      log(e.message.toString());
+    }
+  }
 
   @override
   void initState() {
@@ -297,26 +309,14 @@ class _MainAppState extends State<MainApp> {
   }
 
   Future<void> updateWallpaper(String imagePath) async {
-    final scriptDir = path.dirname(Platform.script.toFilePath());
-    String relativePathToExecutable =
-        path.join(scriptDir, 'bin', 'ConsoleApplication1.exe');
-    if (kReleaseMode) {
-      relativePathToExecutable = path.join(scriptDir, 'data', 'flutter_assets',
-          'bin', 'ConsoleApplication1.exe');
-    }
-    ProcessResult result =
-        await Process.run(relativePathToExecutable, [imagePath, "5"]);
-    if (result.exitCode == 0) {
-      log('Command executed successfully');
-      log('STDOUT:');
-      log(result.stdout);
-    } else {
-      log('Command failed with exit code ${result.exitCode}');
-      log('STDERR:');
-      log(result.stderr);
-    }
     setState(() {
-      updatingWallpaper = false;
+      updatingWallpaper = true;
+    });
+    await callNativeSetDesktopWallpaperMethod(imagePath, 5);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      setState(() {
+        updatingWallpaper = false;
+      });
     });
   }
 
