@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:blissful_backdrop/about.dart';
+import 'package:blissful_backdrop/check_update.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -113,6 +114,14 @@ class _MainAppState extends State<MainApp> {
   }
 
   initialize() async {
+    if (await appUpdateAvailable()) {
+      showDialog(
+        // ignore: use_build_context_synchronously
+        context: context,
+        builder: (context) => const AppUpdater(),
+      );
+    }
+
     PackageInfo pckgInfo = await PackageInfo.fromPlatform();
     var screens = await window_size.getScreenList();
     var prefs = await SharedPreferences.getInstance();
