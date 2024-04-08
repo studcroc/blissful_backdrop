@@ -102,7 +102,8 @@ class _MainAppState extends State<MainApp> {
       if (_scrollController.offset >=
               _scrollController.position.maxScrollExtent &&
           !_scrollController.position.outOfRange) {
-        if (selectedCategory.toLowerCase() != "random") {
+        if (selectedCategory.toLowerCase() != "random" &&
+            selectedCategory.toLowerCase() != "favorites") {
           selectedCategoryPage += 1;
           setState(() {
             loadingNextPageOfWallpaper = true;
@@ -435,40 +436,42 @@ class _MainAppState extends State<MainApp> {
 
     for (var i = 0; i < categories.length; i++) {
       String category = categories[i];
-      categoryWidgets.add(Padding(
-        padding: i == 0
-            ? const EdgeInsets.only(right: 6)
-            : i == categories.length - 1
-                ? const EdgeInsets.only(left: 6)
-                : const EdgeInsets.symmetric(horizontal: 6),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () {
-              if (_scrollController.hasClients) {
-                _scrollController.jumpTo(0);
-              }
-              setState(() {
-                selectedCategory = category;
-                selectedCategoryPage = 1;
-                fetchingImageUrls = true;
-                imageUrls = [];
-              });
-              loadWallpapers();
-            },
-            child: Text(
-              category,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight:
-                    category.toLowerCase() == selectedCategory.toLowerCase()
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+      categoryWidgets.add(
+        Padding(
+          padding: i == 0
+              ? const EdgeInsets.only(right: 6)
+              : i == categories.length - 1
+                  ? const EdgeInsets.only(left: 6)
+                  : const EdgeInsets.symmetric(horizontal: 6),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                if (_scrollController.hasClients) {
+                  _scrollController.jumpTo(0);
+                }
+                setState(() {
+                  selectedCategory = category;
+                  selectedCategoryPage = 1;
+                  fetchingImageUrls = true;
+                  imageUrls = [];
+                });
+                loadWallpapers();
+              },
+              child: Text(
+                category,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight:
+                      category.toLowerCase() == selectedCategory.toLowerCase()
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                ),
               ),
             ),
           ),
         ),
-      ));
+      );
     }
 
     return categoryWidgets;
