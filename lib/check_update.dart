@@ -11,6 +11,16 @@ import 'package:path/path.dart' as path;
 
 var latestAppVersionStr = '';
 
+Future<void> checkForAppUpdate(BuildContext context) async {
+  if (await appUpdateAvailable()) {
+    showDialog(
+      // ignore: use_build_context_synchronously
+      context: context,
+      builder: (context) => const AppUpdater(),
+    );
+  }
+}
+
 Future<bool> appUpdateAvailable() async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   String currentAppVersionStr = packageInfo.version;
@@ -62,8 +72,8 @@ class _AppUpdaterState extends State<AppUpdater> {
 
     if (kReleaseMode) {
       final scriptDir = path.dirname(Platform.script.toFilePath());
-      updateBatFilePath = path.join(scriptDir, 'data', 'flutter_assets', 'bin',
-          'update.bat');
+      updateBatFilePath =
+          path.join(scriptDir, 'data', 'flutter_assets', 'bin', 'update.bat');
     }
 
     // Run the downloaded executable
