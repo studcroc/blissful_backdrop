@@ -114,11 +114,13 @@ class _HomeState extends State<Home> {
     List<String> urls =
         await extractImageUrls(baseEndpoint, selectedCategory.toLowerCase());
 
-    setState(() {
-      imageUrls.addAll(urls);
-      fetchingImageUrls = false;
-      loadingNextPageOfWallpaper = false;
-    });
+    if (mounted) {
+      setState(() {
+        imageUrls.addAll(urls);
+        fetchingImageUrls = false;
+        loadingNextPageOfWallpaper = false;
+      });
+    }
   }
 
   Future<void> favoriteOrUnfavoriteWallpaper(String imageUrl) async {
@@ -388,6 +390,8 @@ class _HomeState extends State<Home> {
                                       String imagePath =
                                           await downloadImage(imageUrl);
                                       await updateWallpaper(imagePath);
+                                      await _preferences.setString(
+                                          "active_wallpaper", imageUrl);
                                       Aptabase.instance.trackEvent(
                                           'update_wallpaper', {
                                         'category': selectedCategory,

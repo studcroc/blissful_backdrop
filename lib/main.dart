@@ -1,6 +1,7 @@
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:blissful_backdrop/about.dart';
+import 'package:blissful_backdrop/active_wallpaper.dart';
 import 'package:blissful_backdrop/check_update.dart';
 import 'package:blissful_backdrop/home.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -74,6 +75,11 @@ class _MainAppState extends State<MainApp> {
       title: const Text('Home'),
       body: const Home(),
     ),
+    fluent_ui.PaneItem(
+      icon: const Icon(fluent_ui.FluentIcons.photo),
+      title: const Text('Active Wallpaper'),
+      body: const ActiveWallpaper(),
+    )
   ];
 
   @override
