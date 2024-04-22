@@ -17,6 +17,46 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  bitsdojo_window:
+    dependency: "direct main"
+    description:
+      name: bitsdojo_window
+      sha256: "88ef7765dafe52d97d7a3684960fb5d003e3151e662c18645c1641c22b873195"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
+  bitsdojo_window_linux:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_linux
+      sha256: "9519c0614f98be733e0b1b7cb15b827007886f6fe36a4fb62cf3d35b9dd578ab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
+  bitsdojo_window_macos:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_macos
+      sha256: f7c5be82e74568c68c5b8449e2c5d8fd12ec195ecd70745a7b9c0f802bb0268f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.4"
+  bitsdojo_window_platform_interface:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_platform_interface
+      sha256: "65daa015a0c6dba749bdd35a0f092e7a8ba8b0766aa0480eb3ef808086f6e27c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
+  bitsdojo_window_windows:
+    dependency: transitive
+    description:
+      name: bitsdojo_window_windows
+      sha256: fa982cf61ede53f483e50b257344a1c250af231a3cdc93a7064dd6dc0d720b68
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
   boolean_selector:
     dependency: transitive
     description:
@@ -137,6 +177,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  fluent_ui:
+    dependency: "direct main"
+    description:
+      name: fluent_ui
+      sha256: a8c76cb501303d108cb9bd33e516da7cfd078031ff427d68eab6069bf4492a2c
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.8.7"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -158,6 +206,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -192,6 +245,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3bc132a9dbce73a7e4a21a17d06e1878839ffbf975568bc875c60537824b0c4d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.18.1"
   leak_tracker:
     dependency: transitive
     description:
@@ -248,6 +309,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.0"
+  math_expressions:
+    dependency: transitive
+    description:
+      name: math_expressions
+      sha256: db0b72d867491c4e53a1c773e2708d5d6e94bbe06be07080fc9f896766b9cd3d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.0"
   meta:
     dependency: transitive
     description:
@@ -352,6 +421,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  recase:
+    dependency: transitive
+    description:
+      name: recase
+      sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   rxdart:
     dependency: transitive
     description:
@@ -360,6 +437,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  scroll_pos:
+    dependency: transitive
+    description:
+      name: scroll_pos
+      sha256: cebf602b2dd939de6832bb902ffefb574608d1b84f420b82b381a4007d3c1e1b
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
+  sentry:
+    dependency: transitive
+    description:
+      name: sentry
+      sha256: "19a267774906ca3a3c4677fc7e9582ea9da79ae9a28f84bbe4885dac2c269b70"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.20.0"
+  sentry_flutter:
+    dependency: "direct main"
+    description:
+      name: sentry_flutter
+      sha256: "2d2917f7d795167e33a790db9bc5e1104d2035569ecf83e09a3f491bc6978cfe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.20.0"
   shared_preferences:
     dependency: "direct main"
     description:

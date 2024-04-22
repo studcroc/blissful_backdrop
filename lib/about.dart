@@ -1,5 +1,6 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
+import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class AboutApp extends StatelessWidget {
@@ -14,8 +15,10 @@ class AboutApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: Container(
+    Aptabase.instance.trackEvent('about_app_opened');
+    return ContentDialog(
+      constraints: const BoxConstraints(maxWidth: double.infinity),
+      content: Container(
         padding: const EdgeInsets.all(24),
         constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.6,
