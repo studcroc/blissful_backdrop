@@ -1,3 +1,4 @@
+import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -14,6 +15,7 @@ class AboutApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Aptabase.instance.trackEvent('about_app_opened');
     return ContentDialog(
       constraints: const BoxConstraints(maxWidth: double.infinity),
       content: Container(

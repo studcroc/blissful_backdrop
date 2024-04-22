@@ -68,8 +68,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    Aptabase.instance.trackEvent('app_launch');
-
     super.initState();
 
     initialize();
@@ -108,17 +106,21 @@ class _HomeState extends State<Home> {
 
       favoriteWallpapersList = favorites ?? [];
     });
+
+    Aptabase.instance.trackEvent('app_launch', {'screens': noOfScreens});
   }
 
   Future<void> loadWallpapers() async {
     List<String> urls =
         await extractImageUrls(baseEndpoint, selectedCategory.toLowerCase());
 
-    setState(() {
-      imageUrls.addAll(urls);
-      fetchingImageUrls = false;
-      loadingNextPageOfWallpaper = false;
-    });
+    if (mounted) {
+      setState(() {
+        imageUrls.addAll(urls);
+        fetchingImageUrls = false;
+        loadingNextPageOfWallpaper = false;
+      });
+    }
   }
 
   Future<void> favoriteOrUnfavoriteWallpaper(String imageUrl) async {
@@ -126,6 +128,8 @@ class _HomeState extends State<Home> {
       favoriteWallpapersList.remove(imageUrl);
     } else {
       favoriteWallpapersList.add(imageUrl);
+      Aptabase.instance.trackEvent('favorite_wallpaper',
+          {'category': selectedCategory, 'wallpaper_url': imageUrl});
     }
     await _preferences.setStringList("favorites", favoriteWallpapersList);
     setState(() {
@@ -134,9 +138,6 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> updateWallpaper(String imagePath) async {
-    setState(() {
-      updatingWallpaper = true;
-    });
     await callNativeSetDesktopWallpaperMethod(imagePath, 5);
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
@@ -158,7 +159,8 @@ class _HomeState extends State<Home> {
     return filePath;
   }
 
-  Future<List<String>> extractImageUrls(String baseUrl, String category) async {
+  Future<List<String>> extractImageUrls(String baseUrl, String category,
+      {bool surpriseUser = false}) async {
     List<String> imageUrls = [];
 
     try {
@@ -181,6 +183,9 @@ class _HomeState extends State<Home> {
               img.parent!.attributes['href']!.replaceAll(".php", "");
           if (imagePath.isNotEmpty) {
             imageUrls.add("$baseEndpoint/albums$imagePath");
+          }
+          if (surpriseUser && imageUrls.isNotEmpty) {
+            return imageUrls;
           }
         }
       } else {
@@ -247,10 +252,32 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  Future<void> setRandomWallpaper() async {
+    setState(() {
+      updatingWallpaper = true;
+    });
+    List<String> urls =
+        await extractImageUrls(baseEndpoint, 'random', surpriseUser: true);
+
+    String imagePath = await downloadImage(urls.first);
+    await updateWallpaper(imagePath);
+
+    await _preferences.setString("active_wallpaper", urls.first);
+    Aptabase.instance.trackEvent('update_wallpaper',
+        {'category': 'surprise_me', 'wallpaper_url': urls.first});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setRandomWallpaper();
+        },
+        tooltip: 'Surprise Me',
+        child: const Icon(fluent_ui.FluentIcons.giftbox_open),
+      ),
       body: Stack(
         children: [
           Padding(
@@ -326,8 +353,7 @@ class _HomeState extends State<Home> {
                                           placeholder: (context, url) =>
                                               Shimmer.fromColors(
                                             baseColor: Colors.grey,
-                                            highlightColor:
-                                                Colors.blueGrey,
+                                            highlightColor: Colors.blueGrey,
                                             child: AspectRatio(
                                               aspectRatio: 4.24,
                                               child: Container(
@@ -358,7 +384,8 @@ class _HomeState extends State<Home> {
                                             icon: Icon(
                                               favoriteWallpapersList.contains(
                                                       imageUrls[index])
-                                                  ? fluent_ui.FluentIcons.heart_fill
+                                                  ? fluent_ui
+                                                      .FluentIcons.heart_fill
                                                   : fluent_ui.FluentIcons.heart,
                                               color: Colors.white,
                                               size: 18,
@@ -386,6 +413,13 @@ class _HomeState extends State<Home> {
                                       String imagePath =
                                           await downloadImage(imageUrl);
                                       await updateWallpaper(imagePath);
+                                      await _preferences.setString(
+                                          "active_wallpaper", imageUrl);
+                                      Aptabase.instance.trackEvent(
+                                          'update_wallpaper', {
+                                        'category': selectedCategory,
+                                        'wallpaper_url': imageUrl
+                                      });
                                     },
                                   ),
                                 );

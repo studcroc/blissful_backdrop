@@ -1,29 +1,48 @@
-import 'dart:developer';
-
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:blissful_backdrop/about.dart';
+import 'package:blissful_backdrop/active_wallpaper.dart';
 import 'package:blissful_backdrop/check_update.dart';
 import 'package:blissful_backdrop/home.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent_ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart' as window_manager;
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initilize the analytics
-  await Aptabase.init("A-EU-0224880831");
-
-  runApp(const MyApp());
+  await Aptabase.init(
+      "A-SH-9850745473", const InitOptions(host: "http://13.201.134.252:8000"));
 
   doWhenWindowReady(() {
     window_manager.appWindow.alignment = Alignment.center;
     window_manager.appWindow.maximize();
     window_manager.appWindow.show();
   });
+
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://6d6ce2788ea17610d40279c84186f5d6@o1040380.ingest.us.sentry.io/4507128484003840';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 0.6;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+      if (kReleaseMode) {
+        options.environment = 'production';
+      } else {
+        options.environment = 'development';
+      }
+    },
+    appRunner: () => runApp(const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -56,6 +75,11 @@ class _MainAppState extends State<MainApp> {
       title: const Text('Home'),
       body: const Home(),
     ),
+    fluent_ui.PaneItem(
+      icon: const Icon(fluent_ui.FluentIcons.photo),
+      title: const Text('Active Wallpaper'),
+      body: const ActiveWallpaper(),
+    )
   ];
 
   @override
@@ -87,7 +111,13 @@ class _MainAppState extends State<MainApp> {
             Expanded(child: window_manager.MoveWindow()),
             window_manager.MinimizeWindowButton(animate: true),
             window_manager.RestoreWindowButton(animate: true),
-            window_manager.CloseWindowButton(animate: true),
+            window_manager.CloseWindowButton(
+              animate: true,
+              onPressed: () {
+                Aptabase.instance.trackEvent('app_closed');
+                window_manager.appWindow.close();
+              },
+            ),
           ],
         ),
         automaticallyImplyLeading: false,
