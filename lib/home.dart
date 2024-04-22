@@ -138,9 +138,6 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> updateWallpaper(String imagePath) async {
-    setState(() {
-      updatingWallpaper = true;
-    });
     await callNativeSetDesktopWallpaperMethod(imagePath, 5);
     Future.delayed(const Duration(milliseconds: 500), () {
       setState(() {
@@ -162,7 +159,8 @@ class _HomeState extends State<Home> {
     return filePath;
   }
 
-  Future<List<String>> extractImageUrls(String baseUrl, String category) async {
+  Future<List<String>> extractImageUrls(String baseUrl, String category,
+      {bool surpriseUser = false}) async {
     List<String> imageUrls = [];
 
     try {
@@ -185,6 +183,9 @@ class _HomeState extends State<Home> {
               img.parent!.attributes['href']!.replaceAll(".php", "");
           if (imagePath.isNotEmpty) {
             imageUrls.add("$baseEndpoint/albums$imagePath");
+          }
+          if (surpriseUser && imageUrls.isNotEmpty) {
+            return imageUrls;
           }
         }
       } else {
@@ -251,10 +252,32 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  Future<void> setRandomWallpaper() async {
+    setState(() {
+      updatingWallpaper = true;
+    });
+    List<String> urls =
+        await extractImageUrls(baseEndpoint, 'random', surpriseUser: true);
+
+    String imagePath = await downloadImage(urls.first);
+    await updateWallpaper(imagePath);
+
+    await _preferences.setString("active_wallpaper", urls.first);
+    Aptabase.instance.trackEvent('update_wallpaper',
+        {'category': 'surprise_me', 'wallpaper_url': urls.first});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setRandomWallpaper();
+        },
+        tooltip: 'Surprise Me',
+        child: const Icon(fluent_ui.FluentIcons.giftbox_open),
+      ),
       body: Stack(
         children: [
           Padding(
