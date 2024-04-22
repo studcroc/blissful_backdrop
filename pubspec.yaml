@@ -29,6 +29,7 @@ dependencies:
   version: ^3.0.2
   fluent_ui: ^4.8.7
   bitsdojo_window: ^0.1.6
+  sentry_flutter: ^7.20.0
 
 dev_dependencies:
   flutter_test:
