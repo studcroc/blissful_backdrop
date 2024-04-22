@@ -10,6 +10,7 @@ import 'package:version/version.dart';
 import 'package:path/path.dart' as path;
 
 var latestAppVersionStr = '';
+var releaseNotes = '';
 
 Future<void> checkForAppUpdate(BuildContext context) async {
   if (await appUpdateAvailable()) {
@@ -17,6 +18,7 @@ Future<void> checkForAppUpdate(BuildContext context) async {
       // ignore: use_build_context_synchronously
       context: context,
       builder: (context) => const AppUpdater(),
+      barrierDismissible: false,
     );
   }
 }
@@ -31,6 +33,7 @@ Future<bool> appUpdateAvailable() async {
       "https://api.github.com/repos/hvg2416/blissful_backdrop/releases"));
 
   latestAppVersionStr = jsonDecode(response.body)[0]['tag_name'];
+  releaseNotes = jsonDecode(response.body)[0]['body'];
 
   Version latestAppVersion = Version.parse(latestAppVersionStr.substring(1));
 
@@ -94,7 +97,7 @@ class _AppUpdaterState extends State<AppUpdater> {
     return AlertDialog(
       title: const Text('New Version Available'),
       content: Text(
-          'A new version $latestAppVersionStr is available. Please update to enjoy the latest features.'),
+          'A new version $latestAppVersionStr is available. Please update to enjoy the latest features. \n\nRelease Notes:\n$releaseNotes'),
       actions: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -103,10 +106,10 @@ class _AppUpdaterState extends State<AppUpdater> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
+              child: Text(
                 'Later',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.black.withOpacity(0.5),
                   fontWeight: FontWeight.w400,
                 ),
               ),

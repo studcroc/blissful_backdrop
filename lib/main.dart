@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:aptabase_flutter/aptabase_flutter.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:blissful_backdrop/about.dart';
@@ -15,7 +13,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initilize the analytics
-  await Aptabase.init("A-EU-0224880831");
+  await Aptabase.init(
+      "A-SH-9850745473", const InitOptions(host: "http://13.201.134.252:8000"));
 
   runApp(const MyApp());
 
@@ -87,7 +86,13 @@ class _MainAppState extends State<MainApp> {
             Expanded(child: window_manager.MoveWindow()),
             window_manager.MinimizeWindowButton(animate: true),
             window_manager.RestoreWindowButton(animate: true),
-            window_manager.CloseWindowButton(animate: true),
+            window_manager.CloseWindowButton(
+              animate: true,
+              onPressed: () {
+                Aptabase.instance.trackEvent('app_closed');
+                window_manager.appWindow.close();
+              },
+            ),
           ],
         ),
         automaticallyImplyLeading: false,

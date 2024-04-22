@@ -68,8 +68,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    Aptabase.instance.trackEvent('app_launch');
-
     super.initState();
 
     initialize();
@@ -108,6 +106,8 @@ class _HomeState extends State<Home> {
 
       favoriteWallpapersList = favorites ?? [];
     });
+
+    Aptabase.instance.trackEvent('app_launch', {'screens': noOfScreens});
   }
 
   Future<void> loadWallpapers() async {
@@ -126,6 +126,8 @@ class _HomeState extends State<Home> {
       favoriteWallpapersList.remove(imageUrl);
     } else {
       favoriteWallpapersList.add(imageUrl);
+      Aptabase.instance.trackEvent('favorite_wallpaper',
+          {'category': selectedCategory, 'wallpaper_url': imageUrl});
     }
     await _preferences.setStringList("favorites", favoriteWallpapersList);
     setState(() {
@@ -326,8 +328,7 @@ class _HomeState extends State<Home> {
                                           placeholder: (context, url) =>
                                               Shimmer.fromColors(
                                             baseColor: Colors.grey,
-                                            highlightColor:
-                                                Colors.blueGrey,
+                                            highlightColor: Colors.blueGrey,
                                             child: AspectRatio(
                                               aspectRatio: 4.24,
                                               child: Container(
@@ -358,7 +359,8 @@ class _HomeState extends State<Home> {
                                             icon: Icon(
                                               favoriteWallpapersList.contains(
                                                       imageUrls[index])
-                                                  ? fluent_ui.FluentIcons.heart_fill
+                                                  ? fluent_ui
+                                                      .FluentIcons.heart_fill
                                                   : fluent_ui.FluentIcons.heart,
                                               color: Colors.white,
                                               size: 18,
@@ -386,6 +388,11 @@ class _HomeState extends State<Home> {
                                       String imagePath =
                                           await downloadImage(imageUrl);
                                       await updateWallpaper(imagePath);
+                                      Aptabase.instance.trackEvent(
+                                          'update_wallpaper', {
+                                        'category': selectedCategory,
+                                        'wallpaper_url': imageUrl
+                                      });
                                     },
                                   ),
                                 );
