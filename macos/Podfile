@@ -1,0 +1,56 @@
+platform :osx, '10.15'
+
+# Fix Sentry C++ std::allocator build error with macOS 26.2 SDK (getsentry/sentry-cocoa#5172)
+# Loosen sentry_flutter's Sentry/HybridSDK pin so we can use 8.46.0+.
+sentry_podspec = File.join(File.dirname(__FILE__), 'Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos/sentry_flutter.podspec')
+if File.exist?(sentry_podspec)
+  spec_content = File.read(sentry_podspec)
+  if spec_content =~ /'Sentry\/HybridSDK',\s*'[^']+'/
+    spec_content = spec_content.gsub(/'Sentry\/HybridSDK',\s*'[^']+'/, "'Sentry/HybridSDK', '>= 8.46.0'")
+    File.write(sentry_podspec, spec_content)
+  end
+end
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'ephemeral', 'Flutter-Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure \"flutter pub get\" is executed first"
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Flutter-Generated.xcconfig, then run \"flutter pub get\""
+end
+
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+flutter_macos_podfile_setup
+
+target 'Runner' do
+  use_frameworks!
+
+  # Use Sentry Cocoa 8.46+ to fix C++ build with macOS 26.2 SDK (getsentry/sentry-cocoa#5172)
+  pod 'Sentry/HybridSDK', '8.46.0'
+
+  flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_macos_build_settings(target)
+  end
+end

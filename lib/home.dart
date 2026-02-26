@@ -107,7 +107,7 @@ class _HomeState extends State<Home> {
       favoriteWallpapersList = favorites ?? [];
     });
 
-    Aptabase.instance.trackEvent('app_launch', {'screens': noOfScreens});
+    // Aptabase.instance.trackEvent('app_launch', {'screens': noOfScreens});
   }
 
   Future<void> loadWallpapers() async {
@@ -128,8 +128,8 @@ class _HomeState extends State<Home> {
       favoriteWallpapersList.remove(imageUrl);
     } else {
       favoriteWallpapersList.add(imageUrl);
-      Aptabase.instance.trackEvent('favorite_wallpaper',
-          {'category': selectedCategory, 'wallpaper_url': imageUrl});
+      // Aptabase.instance.trackEvent('favorite_wallpaper',
+      //     {'category': selectedCategory, 'wallpaper_url': imageUrl});
     }
     await _preferences.setStringList("favorites", favoriteWallpapersList);
     setState(() {
@@ -263,8 +263,8 @@ class _HomeState extends State<Home> {
     await updateWallpaper(imagePath);
 
     await _preferences.setString("active_wallpaper", urls.first);
-    Aptabase.instance.trackEvent('update_wallpaper',
-        {'category': 'surprise_me', 'wallpaper_url': urls.first});
+    // Aptabase.instance.trackEvent('update_wallpaper',
+    //     {'category': 'surprise_me', 'wallpaper_url': urls.first});
   }
 
   @override
@@ -415,11 +415,11 @@ class _HomeState extends State<Home> {
                                       await updateWallpaper(imagePath);
                                       await _preferences.setString(
                                           "active_wallpaper", imageUrl);
-                                      Aptabase.instance.trackEvent(
-                                          'update_wallpaper', {
-                                        'category': selectedCategory,
-                                        'wallpaper_url': imageUrl
-                                      });
+                                      // Aptabase.instance.trackEvent(
+                                      //     'update_wallpaper', {
+                                      //   'category': selectedCategory,
+                                      //   'wallpaper_url': imageUrl
+                                      // });
                                     },
                                   ),
                                 );

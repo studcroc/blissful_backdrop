@@ -11,7 +11,7 @@ import package_info_plus
 import path_provider_foundation
 import sentry_flutter
 import shared_preferences_foundation
-import sqflite
+import sqflite_darwin
 import url_launcher_macos
 import window_size
 

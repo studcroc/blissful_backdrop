@@ -15,7 +15,7 @@ class AboutApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Aptabase.instance.trackEvent('about_app_opened');
+    // Aptabase.instance.trackEvent('about_app_opened');
     return ContentDialog(
       constraints: const BoxConstraints(maxWidth: double.infinity),
       content: Container(
