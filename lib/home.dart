@@ -1,6 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:aptabase_flutter/aptabase_flutter.dart';
+import 'package:blissful_backdrop/wallpaper_platform/display_info.dart';
+import 'package:blissful_backdrop/wallpaper_platform/wallpaper_platform.dart';
+import 'package:blissful_backdrop/wallpaper_platform/wallpaper_platform_factory.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent_ui;
 import 'package:flutter/material.dart';
@@ -53,18 +56,15 @@ class _HomeState extends State<Home> {
   late SharedPreferences _preferences;
   List<String> favoriteWallpapersList = [];
 
-  static const platform = MethodChannel('blissful_backdrop.native/wallpaper');
+  /// Vertical offset in pixels for spanned wallpaper (macOS). Positive = content down.
+  int leftOffsetMacOS = 0;
+  int rightOffsetMacOS = 0;
 
-  Future<void> callNativeSetDesktopWallpaperMethod(
-      String wallpaperFilePath, int fitMode) async {
-    try {
-      final result = await platform.invokeMethod<bool>('setDesktopWallpaper',
-          {"filePath": wallpaperFilePath, "fitMode": fitMode});
-      log(result.toString());
-    } on PlatformException catch (e) {
-      log(e.message.toString());
-    }
-  }
+  static const _offsetMin = -300;
+  static const _offsetMax = 300;
+
+  late final WallpaperPlatform _wallpaperPlatform =
+      createWallpaperPlatform();
 
   @override
   void initState() {
@@ -103,8 +103,9 @@ class _HomeState extends State<Home> {
       }
       packageInfo = pckgInfo;
       _preferences = prefs;
-
       favoriteWallpapersList = favorites ?? [];
+      leftOffsetMacOS = prefs.getInt('macos_left_offset') ?? 0;
+      rightOffsetMacOS = prefs.getInt('macos_right_offset') ?? 0;
     });
 
     // Aptabase.instance.trackEvent('app_launch', {'screens': noOfScreens});
@@ -138,12 +139,64 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> updateWallpaper(String imagePath) async {
-    await callNativeSetDesktopWallpaperMethod(imagePath, 5);
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {
-        updatingWallpaper = false;
-      });
-    });
+    try {
+      List<DisplayInfo> displays;
+      try {
+        displays = await _wallpaperPlatform.getDisplays();
+      } on UnimplementedError catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(e.message ?? 'macOS support coming soon')),
+          );
+        }
+        setState(() => updatingWallpaper = false);
+        return;
+      }
+      if (Platform.isMacOS && displays.length < 2) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Spanned wallpaper requires at least 2 displays')),
+          );
+        }
+        setState(() => updatingWallpaper = false);
+        return;
+      }
+      final verticalOffsets = Platform.isMacOS && displays.length >= 2
+          ? [leftOffsetMacOS, rightOffsetMacOS]
+          : List<int>.filled(displays.length, 0);
+      await _wallpaperPlatform.generateAndApplySpannedWallpaper(
+        sourceImagePath: imagePath,
+        displays: displays,
+        verticalOffsets: verticalOffsets,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Wallpaper applied to both desktops')),
+        );
+      }
+    } on PlatformException catch (e, st) {
+      log('updateWallpaper platform error', error: e, stackTrace: st);
+      if (mounted) {
+        final msg = e.message ?? e.code;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Wallpaper failed: $msg')),
+        );
+      }
+    } catch (e, st) {
+      log('updateWallpaper failed', error: e, stackTrace: st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to set wallpaper: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) setState(() => updatingWallpaper = false);
+        });
+      }
+    }
   }
 
   Future<String> downloadImage(String imageUrl) async {
@@ -307,6 +360,46 @@ class _HomeState extends State<Home> {
                     )
                   ],
                 ),
+                if (Platform.isMacOS && noOfScreens >= 2) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text('Left offset:', style: TextStyle(fontSize: 12)),
+                      Expanded(
+                        child: fluent_ui.Slider(
+                          value: leftOffsetMacOS.toDouble(),
+                          min: _offsetMin.toDouble(),
+                          max: _offsetMax.toDouble(),
+                          onChanged: (v) {
+                            setState(() => leftOffsetMacOS = v.round());
+                            _preferences.setInt('macos_left_offset', v.round());
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: 36,
+                        child: Text('$leftOffsetMacOS', style: const TextStyle(fontSize: 12)),
+                      ),
+                      const SizedBox(width: 16),
+                      const Text('Right offset:', style: TextStyle(fontSize: 12)),
+                      Expanded(
+                        child: fluent_ui.Slider(
+                          value: rightOffsetMacOS.toDouble(),
+                          min: _offsetMin.toDouble(),
+                          max: _offsetMax.toDouble(),
+                          onChanged: (v) {
+                            setState(() => rightOffsetMacOS = v.round());
+                            _preferences.setInt('macos_right_offset', v.round());
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        width: 36,
+                        child: Text('$rightOffsetMacOS', style: const TextStyle(fontSize: 12)),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Expanded(
                   child: fetchingImageUrls

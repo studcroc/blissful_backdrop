@@ -34,6 +34,15 @@ Blissful Backdrop is a Flutter desktop application that allows you to set wallpa
 2. Download the [blissful_backdrop.exe](https://github.com/hvg2416/blissful_backdrop/releases/latest) from the latest release.
 3. Once downloaded, double-click on the `blissful_backdrop.exe` file and follow the instructions to install the application.
 
+### Building for macOS
+
+* Ensure Flutter supports macOS: `flutter config --enable-macos-desktop` if needed.
+* From the project root: `flutter create .` (generates/updates `macos/` without overwriting lib).
+* Run on macOS: `flutter run -d macos`.
+* Build release: `flutter build macos`.
+
+On macOS, the app supports **spanned wallpaper** for dual monitors: pick a wide image, optionally adjust the left/right vertical offset sliders so the horizon lines up across both displays, then set the wallpaper. Display order is left-to-right from the system; per-monitor wallpapers are applied via System Events (AppleScript).
+
 ## License
 
 Blissful Backdrop is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.

@@ -18,6 +18,21 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Workaround: macOS (and sometimes Cursor/IDE) can send duplicate KeyDown events
+  // without KeyUp, triggering Flutter's HardwareKeyboard assertion. This is a known
+  // framework/embedder bug; suppress it so the app doesn't flood the console.
+  final previousOnError = FlutterError.onError;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (details.exception is AssertionError &&
+        details.stack != null &&
+        details.stack.toString().contains('hardware_keyboard.dart') &&
+        details.exception.toString().contains('KeyDownEvent') &&
+        details.exception.toString().contains('already pressed')) {
+      return; // known Flutter keyboard sync issue on macOS
+    }
+    previousOnError?.call(details);
+  };
+
   // Initilize the analytics
   // await Aptabase.init(
   //     "A-SH-9850745473", const InitOptions(host: "http://13.201.134.252:8000"));
@@ -95,10 +110,14 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     if (Platform.isMacOS) {
-      return const MacOSUIShell();
+      return ScaffoldMessenger(
+        child: const MacOSUIShell(),
+      );
     }
     if (Platform.isWindows) {
-      return const WindowsUIShell();
+      return ScaffoldMessenger(
+        child: const WindowsUIShell(),
+      );
     }
     return const SizedBox.shrink();
   }
